@@ -1,8 +1,8 @@
 This project uses:
 - Kotlin
 - Jetpack compose
-- MVVM with Clean Architecture
+- MVVM with clean architecture
 - Coroutine
 - Hilt for DI
 - Room
-- Robolectric and Mockk for testing
+- Robolectric and mockk for testing
