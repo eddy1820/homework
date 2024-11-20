@@ -23,9 +23,9 @@ class CurrencyListViewModel @Inject constructor(
     private val clearCurrencyDataUseCase: ClearCurrencyDataUseCase
 ) : ViewModel() {
     private val _currencyList = MutableStateFlow<List<CurrencyItem>>(emptyList())
-    val currencyList: StateFlow<List<CurrencyItem>> get() = _currencyList
+    val currencyList: StateFlow<List<CurrencyItem>> = _currencyList
     private val _searchText = MutableStateFlow("")
-    val searchText: StateFlow<String> get() = _searchText
+    val searchText: StateFlow<String> = _searchText
 
     private var includeCrypto = true
     private var includeFiat = true
