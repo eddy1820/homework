@@ -16,37 +16,30 @@ class GetCombinedCurrencyListUseCase @Inject constructor(
     private val getFiatCurrenciesUseCase: GetFiatCurrenciesUseCase
 ) {
     suspend operator fun invoke(
-        includeCrypto: Boolean,
-        includeFiat: Boolean,
-        filter: String = ""
+        includeCrypto: Boolean, includeFiat: Boolean, filter: String = ""
     ): Flow<List<CurrencyItem>> {
         val cryptoFlow = if (includeCrypto) getCryptoCurrenciesUseCase() else flowOf(emptyList())
         val fiatFlow = if (includeFiat) getFiatCurrenciesUseCase() else flowOf(emptyList())
 
         return combine(
-            cryptoFlow,
-            fiatFlow
+            cryptoFlow, fiatFlow
         ) { cryptoList: List<CryptoCurrencyInfo>, fiatList: List<FiatCurrencyInfo> ->
-            val cryptoItems: List<CurrencyItem.CryptoCurrency> = cryptoList.filter {
+            return@combine cryptoList.filter {
                 filterCurrency(it.name, it.symbol, filter)
             }.map {
                 CurrencyItem.CryptoCurrency(id = it.id, name = it.name, symbol = it.symbol)
-            }
-            val fiatItems: List<CurrencyItem.FiatCurrency> = fiatList.filter {
+            } + fiatList.filter {
                 filterCurrency(it.name, "", filter)
             }.map {
                 CurrencyItem.FiatCurrency(
                     id = it.id, name = it.name, symbol = it.symbol, code = it.code
                 )
             }
-            return@combine cryptoItems + fiatItems
         }.flowOn(Dispatchers.IO)
     }
 
     private fun filterCurrency(
-        name: String,
-        symbol: String,
-        filter: String = ""
+        name: String, symbol: String, filter: String = ""
     ): Boolean {
         if (filter.isEmpty()) return true
         return listOf(
@@ -58,7 +51,6 @@ class GetCombinedCurrencyListUseCase @Inject constructor(
             symbol.startsWith(filter, ignoreCase = true)
         ).any { it }
     }
-
 
 
 }

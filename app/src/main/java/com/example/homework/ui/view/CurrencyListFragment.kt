@@ -17,7 +17,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.activityViewModels
@@ -33,13 +32,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.homework.R
 import com.example.homework.ui.theme.Grey600
 import com.example.homework.ui.theme.Grey800
 
 @AndroidEntryPoint
 class CurrencyListFragment : Fragment() {
-
     companion object {
         @JvmStatic
         fun newInstance() =
@@ -64,8 +63,8 @@ class CurrencyListFragment : Fragment() {
 
 @Composable
 fun CurrencyListLayout(viewModel: CurrencyListViewModel) {
-    val list: List<CurrencyItem> by viewModel.currencyList.collectAsState(initial = emptyList())
-    val searchText: String by viewModel.searchText.collectAsState(initial = "")
+    val list: List<CurrencyItem> by viewModel.currencyList.collectAsStateWithLifecycle(initialValue = listOf())
+    val searchText: String by viewModel.searchText.collectAsStateWithLifecycle(initialValue = "")
 
     Column {
         SearchBar(

@@ -1,6 +1,5 @@
 package com.example.homework.ui.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.homework.domain.model.CurrencyItem
@@ -40,6 +39,7 @@ class CurrencyListViewModel @Inject constructor(
         this.includeCrypto = includeCrypto
         this.includeFiat = includeFiat
         _searchText.value = searchText
+        job?.cancel()
         job = viewModelScope.launch {
             getCombinedCurrencyListUseCase(includeCrypto, includeFiat, searchText)
                 .catch {
