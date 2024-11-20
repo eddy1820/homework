@@ -1,6 +1,7 @@
 package com.example.homework.ui.viewmodel
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import app.cash.turbine.test
 import com.example.homework.domain.model.CurrencyItem
 import com.example.homework.domain.usecase.ClearCurrencyDataUseCase
 import com.example.homework.domain.usecase.GetCombinedCurrencyListUseCase
@@ -12,6 +13,7 @@ import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
@@ -60,14 +62,23 @@ class CurrencyListViewModelTest {
             CurrencyItem.FiatCurrency(id = "SGD", name = "Singapore Dollar", symbol = "$", code = "SGD")
         )
         val flow = flowOf(fakeCurrencyList)
-
         coEvery { getCombinedCurrencyListUseCase(true, true, "") } returns flow
-
         viewModel.fetchCurrencies()
-        testDispatcher.scheduler.advanceUntilIdle()
         advanceUntilIdle()
-
         assertEquals(fakeCurrencyList, viewModel.currencyList.value)
+    }
+
+    @Test
+    fun testWhenSearchTextChangedThenFetchCurrenciesIsCalledAfterDebounce() = runTest {
+        viewModel.searchText.test {
+            assertEquals("", awaitItem())
+            viewModel.searchTextChanged("BTC")
+            assertEquals("BTC", awaitItem())
+            advanceTimeBy(400)
+            coVerify {
+                getCombinedCurrencyListUseCase(true, true, "BTC")
+            }
+        }
     }
 
     @Test
