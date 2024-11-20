@@ -70,7 +70,7 @@ fun CurrencyListLayout(viewModel: CurrencyListViewModel) {
         SearchBar(
             searchText = searchText,
             onSearchTextChanged = {
-                viewModel.fetchCurrencies(searchText = it)
+                viewModel.searchTextChanged(newText = it)
             },
             onBackClick = {
                 viewModel.fetchCurrencies(searchText = "")

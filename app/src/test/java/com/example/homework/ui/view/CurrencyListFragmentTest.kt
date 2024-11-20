@@ -18,6 +18,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import com.example.homework.R
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.test.runTest
 
 @RunWith(RobolectricTestRunner::class)
 class CurrencyListFragmentTest {
@@ -91,12 +93,15 @@ class CurrencyListFragmentTest {
     }
 
     @Test
-    fun testWhenSearchingCallsViewModelWithSearchText() {
+    fun testWhenSearchingCallsViewModelWithSearchText() = runTest{
         composeTestRule.setContent {
             CurrencyListLayout(viewModel = viewModel)
         }
         composeTestRule.onNode(hasSetTextAction()).performTextInput("BTC")
-        verify { viewModel.fetchCurrencies(searchText = "BTC") }
+        verify { viewModel.searchTextChanged(newText = "BTC") }
+        viewModel.searchText.collectLatest {
+            verify { viewModel.fetchCurrencies(searchText = "BTC") }
+        }
     }
 
     @Test

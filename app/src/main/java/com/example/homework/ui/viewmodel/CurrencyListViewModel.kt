@@ -12,6 +12,9 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -30,6 +33,20 @@ class CurrencyListViewModel @Inject constructor(
     private var includeCrypto = true
     private var includeFiat = true
     private var job: Job? = null
+
+    init {
+        @Suppress("OPT_IN_USAGE")
+        _searchText
+            .debounce(300)
+            .onEach { text ->
+                fetchCurrencies(searchText = text)
+            }
+            .launchIn(viewModelScope)
+    }
+
+    fun searchTextChanged(newText: String) {
+        _searchText.value = newText
+    }
 
     fun fetchCurrencies(
         includeCrypto: Boolean = this.includeCrypto,
@@ -69,5 +86,10 @@ class CurrencyListViewModel @Inject constructor(
         job?.cancel()
         _currencyList.value = emptyList()
         _searchText.value = ""
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        job?.cancel()
     }
 }
